@@ -1,14 +1,22 @@
-import { writeFile } from 'fs/promises';
+import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import mergeImg from 'merge-img';
-import axios from 'axios';
 import minimist from 'minimist';
+import { promisify } from 'util';
+
+import { downloadCatImage, getBufferAsync } from "./misc/util.js";
 
 const argv = minimist(process.argv.slice(2));
+const writeFileAsync = promisify(fsPromises.writeFile);
 
+// Configuration options
 const {
-  greeting = 'Hello', who = 'You',
-  width = 400, height = 500, color = 'Pink', size = 100,
+  greeting = 'Hello',
+  who = 'You',
+  width = 400,
+  height = 500,
+  color = 'Pink',
+  size = 100,
 } = argv;
 
 const baseUrl = `https://cataas.com/`;
@@ -26,24 +34,12 @@ async function generateCatCard() {
       downloadCatImage(secondReqUrl)
     ]);
 
-    const img = await mergeImg([
-      { src: firstBody, x: 0, y: 0 },
-      { src: secondBody, x: width, y: 0 }
-    ]);
+    const img = await mergeCatImages(firstBody, secondBody);
 
-    const buffer = await new Promise((resolve, reject) => {
-      img.getBuffer('image/jpeg', (err, buffer) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(buffer);
-        }
-      });
-    });
+    const buffer = await getBufferAsync(img);
 
     const fileOut = join(process.cwd(), '/cat-card.jpg');
-
-    await writeFile(fileOut, buffer, 'binary');
+    await writeFileAsync(fileOut, buffer, 'binary');
     console.log('The file was saved!');
   } catch (error) {
     console.error('Failed to generate the cat card:', error);
@@ -51,20 +47,16 @@ async function generateCatCard() {
 }
 
 /**
- * 
- * Download a cat image from the specified URL.
- * @param {string} url - The URL of the cat image.
- * @returns {Promise<Buffer>} The downloaded image as a Buffer.
+ * Merge two cat images together.
+ * @param {Buffer} firstImage - The first cat image as a Buffer.
+ * @param {Buffer} secondImage - The second cat image as a Buffer.
+ * @returns {mergeImg.MergeImg} The merged cat image.
  */
-async function downloadCatImage(url) {
-  try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    console.log(`Received response with status: ${response.status}`);
-    return Buffer.from(response.data, 'binary');
-  } catch (error) {
-    console.error('Failed to download the cat image:', error);
-    throw error;
-  }
+async function mergeCatImages(firstImage, secondImage) {
+  return await mergeImg([
+    { src: firstImage, x: 0, y: 0 },
+    { src: secondImage, x: width, y: 0 },
+  ]);
 }
 
 generateCatCard();
