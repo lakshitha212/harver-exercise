@@ -1,5 +1,18 @@
 # harver-exercise
 
+##### Setup guide
+
+- Clone: ```git clone https://github.com/lakshitha212/harver-exercise.git```
+- Unzip herver-exercise.zip file
+- ```cd harver-exercise```
+- To install dependencies: ```npm install```
+- To run project: ```npm start```
+
+##### Engines
+
+- ```"node": ">=12.0.0"```
+- ```"npm": ">=6.0.0"```
+
 ##### Improvements
 
 - Use const instead of let for variables that are not reassigned.
