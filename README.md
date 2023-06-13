@@ -3,7 +3,6 @@
 ##### Setup guide
 
 - Clone: ```git clone https://github.com/lakshitha212/harver-exercise.git```
-- Unzip herver-exercise.zip file
 - ```cd harver-exercise```
 - To install dependencies: ```npm install```
 - To run project: ```npm start```
